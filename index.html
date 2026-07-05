@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pathfinder — Grid Search Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◱</span>
+      <h1>Pathfinder</h1>
+      <span class="brand-sub">grid search visualizer</span>
+    </div>
+    <div class="readout" id="coord-readout">ROW --- / COL ---</div>
+    <button class="btn-icon" id="btn-info-open" aria-label="Open info panel">?</button>
+  </header>
+
+  <main>
+    <section class="panel controls" aria-label="Controls">
+      <div class="control-group">
+        <span class="control-label">Mode</span>
+        <div class="mode-buttons" role="group">
+          <button class="mode-btn active" data-mode="start" id="btn-mode-start">
+            <span class="dot dot-start"></span> Start
+          </button>
+          <button class="mode-btn" data-mode="end" id="btn-mode-end">
+            <span class="dot dot-end"></span> Target
+          </button>
+          <button class="mode-btn" data-mode="wall" id="btn-mode-wall">
+            <span class="dot dot-wall"></span> Wall
+          </button>
+          <button class="mode-btn" data-mode="erase" id="btn-mode-erase">
+            <span class="dot dot-erase"></span> Erase
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="algorithm-select">Algorithm</label>
+        <select id="algorithm-select">
+          <option value="astar">A* Search</option>
+          <option value="dijkstra">Dijkstra's Algorithm</option>
+          <option value="bfs">Breadth-First Search (BFS)</option>
+          <option value="dfs">Depth-First Search (DFS)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="speed-select">Speed</label>
+        <select id="speed-select">
+          <option value="fast">Fast</option>
+          <option value="normal" selected>Normal</option>
+          <option value="slow">Slow</option>
+        </select>
+      </div>
+
+      <div class="control-group action-group">
+        <button class="btn-primary" id="btn-visualize">▶ Visualize</button>
+        <button class="btn-secondary" id="btn-random-maze">⚄ Random Walls</button>
+        <button class="btn-secondary" id="btn-clear-walls">Clear Walls</button>
+        <button class="btn-secondary" id="btn-clear-board">Reset Board</button>
+      </div>
+    </section>
+
+    <section class="grid-wrap" aria-label="Grid">
+      <div id="grid"></div>
+    </section>
+
+    <section class="panel stats" id="stats" aria-label="Statistics">
+      <div class="stat">
+        <span class="stat-label">Status</span>
+        <span class="stat-value" id="stat-status">Place a start and target cell</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Visited</span>
+        <span class="stat-value" id="stat-visited">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Path length</span>
+        <span class="stat-value" id="stat-path">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Run time</span>
+        <span class="stat-value" id="stat-time">0 ms</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot-note">
+    Built with HTML, CSS &amp; vanilla JavaScript — no frameworks, no dependencies.
+  </footer>
+
+  <!-- Info Modal -->
+  <div class="modal-overlay" id="info-modal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2>About Pathfinder</h2>
+        <button class="btn-icon" id="btn-info-close" aria-label="Close info panel">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Pathfinder is an interactive grid where you can watch classic search
+          algorithms explore space step by step, cell by cell, until they find
+          — or fail to find — a route from a start point to a target.
+        </p>
+
+        <h3>How to use it</h3>
+        <ol>
+          <li><strong>Start</strong> mode — click a cell to place the green start node.</li>
+          <li><strong>Target</strong> mode — click a cell to place the coral target node.</li>
+          <li><strong>Wall</strong> mode — click or click-and-drag to paint obstacles the search cannot pass through.</li>
+          <li><strong>Erase</strong> mode — click or drag to remove walls.</li>
+          <li>Pick an <strong>algorithm</strong> and a <strong>speed</strong>, then press <strong>Visualize</strong>.</li>
+          <li><strong>Clear Walls</strong> removes obstacles only. <strong>Reset Board</strong> clears everything, including start/target.</li>
+          <li><strong>Random Walls</strong> scatters obstacles across the grid instantly.</li>
+        </ol>
+
+        <h3>Reading the animation</h3>
+        <ul>
+          <li><span class="legend-swatch legend-visited"></span> Cyan pulse — a cell the algorithm has examined.</li>
+          <li><span class="legend-swatch legend-path"></span> Amber glow — the final path once the target is reached.</li>
+          <li><span class="legend-swatch legend-wall"></span> Dark cell — an obstacle; no algorithm can cross it.</li>
+        </ul>
+
+        <h3>The algorithms</h3>
+        <p><strong>Breadth-First Search (BFS)</strong> explores the grid in expanding rings, one step at a time. On an unweighted grid like this one, it always finds the shortest path, but it checks many cells it doesn't strictly need to.</p>
+        <p><strong>Depth-First Search (DFS)</strong> commits to a direction and follows it as far as possible before backtracking. It is fast to code and easy to reason about, but the path it finds is rarely the shortest one.</p>
+        <p><strong>Dijkstra's Algorithm</strong> always expands the closest unvisited cell first. On this grid, where every step costs the same, it behaves like BFS — but the same logic scales to grids with variable movement costs.</p>
+        <p><strong>A* Search</strong> is Dijkstra plus a heuristic: it estimates the remaining distance to the target (using Manhattan distance here) and prioritizes cells that look promising. It typically reaches the target while examining far fewer cells than the others.</p>
+
+        <h3>Why this matters</h3>
+        <p>These are the same core ideas behind route planning in maps, NPC movement in games, and the informed-search techniques (Greedy Best-First, A*, Hill Climbing) covered in most introductory AI courses. Watching them run side by side on the same grid makes their trade-offs — speed, memory, and optimality — visible instead of abstract.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
