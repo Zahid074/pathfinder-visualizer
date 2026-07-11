@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pathfinder — Grid Search Visualizer</title>
+<title>Pathfinder — Grid Search &amp; Knapsack Visualizer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
@@ -14,7 +14,7 @@
     <div class="brand">
       <span class="brand-mark">◱</span>
       <h1>Pathfinder</h1>
-      <span class="brand-sub">grid search visualizer</span>
+      <span class="brand-sub">grid search &amp; knapsack visualizer</span>
     </div>
     <div class="readout" id="coord-readout">ROW --- / COL ---</div>
     <button class="btn-icon" id="btn-info-open" aria-label="Open info panel">?</button>
@@ -22,53 +22,125 @@
 
   <main>
     <section class="panel controls" aria-label="Controls">
+
       <div class="control-group">
-        <span class="control-label">Mode</span>
+        <span class="control-label">Problem</span>
         <div class="mode-buttons" role="group">
-          <button class="mode-btn active" data-mode="start" id="btn-mode-start">
-            <span class="dot dot-start"></span> Start
-          </button>
-          <button class="mode-btn" data-mode="end" id="btn-mode-end">
-            <span class="dot dot-end"></span> Target
-          </button>
-          <button class="mode-btn" data-mode="wall" id="btn-mode-wall">
-            <span class="dot dot-wall"></span> Wall
-          </button>
-          <button class="mode-btn" data-mode="erase" id="btn-mode-erase">
-            <span class="dot dot-erase"></span> Erase
-          </button>
+          <button class="mode-btn problem-btn active" data-problem="pathfinding" id="btn-problem-pathfinding">🧭 Pathfinding</button>
+          <button class="mode-btn problem-btn" data-problem="knapsack" id="btn-problem-knapsack">🎒 0/1 Knapsack</button>
         </div>
       </div>
 
-      <div class="control-group">
-        <label class="control-label" for="algorithm-select">Algorithm</label>
-        <select id="algorithm-select">
-          <option value="astar">A* Search</option>
-          <option value="dijkstra">Dijkstra's Algorithm</option>
-          <option value="bfs">Breadth-First Search (BFS)</option>
-          <option value="dfs">Depth-First Search (DFS)</option>
-        </select>
+      <!-- ===================== Pathfinding controls ===================== -->
+      <div id="pathfinding-controls" class="inline-controls">
+
+        <div class="control-group">
+          <span class="control-label">Mode</span>
+          <div class="mode-buttons" role="group">
+            <button class="mode-btn grid-mode-btn active" data-mode="start" id="btn-mode-start">
+              <span class="dot dot-start"></span> Start
+            </button>
+            <button class="mode-btn grid-mode-btn" data-mode="end" id="btn-mode-end">
+              <span class="dot dot-end"></span> Target
+            </button>
+            <button class="mode-btn grid-mode-btn" data-mode="wall" id="btn-mode-wall">
+              <span class="dot dot-wall"></span> Wall
+            </button>
+            <button class="mode-btn grid-mode-btn" data-mode="erase" id="btn-mode-erase">
+              <span class="dot dot-erase"></span> Erase
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="algorithm-select">Algorithm</label>
+          <select id="algorithm-select">
+            <option value="astar">A* Search</option>
+            <option value="dijkstra">Dijkstra's Algorithm</option>
+            <option value="bfs">Breadth-First Search (BFS)</option>
+            <option value="dfs">Depth-First Search (DFS)</option>
+            <option value="greedy">Greedy Best-First Search</option>
+            <option value="dls">Depth-Limited Search (DLS)</option>
+            <option value="ids">Iterative Deepening Search (IDS)</option>
+            <option value="bidirectional">Bidirectional Search</option>
+            <option value="hillclimbing">Hill Climbing</option>
+            <option value="beam">Beam Search (k = 3)</option>
+          </select>
+        </div>
+
+        <div class="control-group" id="depth-limit-group" style="display:none;">
+          <label class="control-label" for="depth-limit-input" id="depth-limit-label">Depth Limit</label>
+          <input type="number" id="depth-limit-input" min="1" max="200" value="12" />
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="speed-select">Speed</label>
+          <select id="speed-select">
+            <option value="fast">Fast</option>
+            <option value="normal" selected>Normal</option>
+            <option value="slow">Slow</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Visualization</span>
+          <label class="toggle-switch" for="toggle-cartoon">
+            <input type="checkbox" id="toggle-cartoon" />
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">🤖 Cartoon Mode</span>
+          </label>
+        </div>
+
+        <div class="control-group action-group">
+          <button class="btn-primary" id="btn-visualize">▶ Visualize</button>
+          <button class="btn-secondary" id="btn-random-maze">⚄ Random Walls</button>
+          <button class="btn-secondary" id="btn-clear-walls">Clear Walls</button>
+          <button class="btn-secondary" id="btn-clear-board">Reset Board</button>
+        </div>
       </div>
 
-      <div class="control-group">
-        <label class="control-label" for="speed-select">Speed</label>
-        <select id="speed-select">
-          <option value="fast">Fast</option>
-          <option value="normal" selected>Normal</option>
-          <option value="slow">Slow</option>
-        </select>
-      </div>
+      <!-- ===================== Knapsack controls ===================== -->
+      <div id="knapsack-controls" class="inline-controls hidden">
 
-      <div class="control-group action-group">
-        <button class="btn-primary" id="btn-visualize">▶ Visualize</button>
-        <button class="btn-secondary" id="btn-random-maze">⚄ Random Walls</button>
-        <button class="btn-secondary" id="btn-clear-walls">Clear Walls</button>
-        <button class="btn-secondary" id="btn-clear-board">Reset Board</button>
+        <div class="control-group">
+          <label class="control-label" for="knapsack-algo-select">Algorithm</label>
+          <select id="knapsack-algo-select">
+            <option value="dp">0/1 Knapsack — Dynamic Programming</option>
+            <option value="ga">0/1 Knapsack — Genetic Algorithm</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="knapsack-capacity-input">Capacity</label>
+          <input type="number" id="knapsack-capacity-input" min="1" max="60" value="15" />
+        </div>
+
+        <div class="control-group" id="ga-params-group" style="display:none;">
+          <label class="control-label">GA Parameters</label>
+          <div class="ga-params-row">
+            <input type="number" id="ga-population-input" min="4" max="200" value="20" title="Population size" />
+            <input type="number" id="ga-generations-input" min="1" max="300" value="40" title="Generations" />
+            <input type="number" id="ga-mutation-input" min="0" max="1" step="0.01" value="0.05" title="Mutation rate" />
+          </div>
+          <div class="ga-params-labels">
+            <span>Population</span><span>Generations</span><span>Mutation</span>
+          </div>
+        </div>
+
+        <div class="control-group action-group">
+          <button class="btn-primary" id="btn-knapsack-run">▶ Run Knapsack</button>
+          <button class="btn-secondary" id="btn-knapsack-add-item">+ Add Item</button>
+          <button class="btn-secondary" id="btn-knapsack-reset">Reset Items</button>
+        </div>
       </div>
     </section>
 
-    <section class="grid-wrap" aria-label="Grid">
+    <!-- ===================== Pathfinding grid ===================== -->
+    <section class="grid-wrap" id="pathfinding-section" aria-label="Grid">
       <div id="grid"></div>
+      <div id="cartoon-avatar" class="cartoon-avatar" aria-hidden="true">
+        <span id="cartoon-avatar-emoji" class="cartoon-avatar-emoji">🤖</span>
+      </div>
     </section>
 
     <section class="panel stats" id="stats" aria-label="Statistics">
@@ -89,6 +161,43 @@
         <span class="stat-value" id="stat-time">0 ms</span>
       </div>
     </section>
+
+    <!-- ===================== Knapsack section ===================== -->
+    <section class="panel knapsack-section" id="knapsack-section" style="display:none;" aria-label="Knapsack">
+      <div class="knapsack-layout">
+        <div class="knapsack-items">
+          <h3 class="k-heading">Items</h3>
+          <table class="items-table" id="items-table">
+            <thead><tr><th>Name</th><th>Weight</th><th>Value</th><th></th></tr></thead>
+            <tbody id="items-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="knapsack-output">
+          <h3 class="k-heading">Result</h3>
+          <div id="knapsack-dp-wrap" class="knapsack-dp-wrap"></div>
+          <div id="knapsack-ga-wrap" class="knapsack-ga-wrap"></div>
+          <div class="stats knapsack-stats">
+            <div class="stat">
+              <span class="stat-label">Status</span>
+              <span class="stat-value" id="k-stat-status">Set items &amp; capacity, then run</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Best Value</span>
+              <span class="stat-value" id="k-stat-value">0</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Total Weight</span>
+              <span class="stat-value" id="k-stat-weight">0</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Run time</span>
+              <span class="stat-value" id="k-stat-time">0 ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="foot-note">
@@ -107,10 +216,12 @@
         <p>
           Pathfinder is an interactive grid where you can watch classic search
           algorithms explore space step by step, cell by cell, until they find
-          — or fail to find — a route from a start point to a target.
+          — or fail to find — a route from a start point to a target. It also
+          includes a separate 0/1 Knapsack module for exploring optimization
+          algorithms outside of grid search.
         </p>
 
-        <h3>How to use it</h3>
+        <h3>How to use the grid</h3>
         <ol>
           <li><strong>Start</strong> mode — click a cell to place the green start node.</li>
           <li><strong>Target</strong> mode — click a cell to place the coral target node.</li>
@@ -123,19 +234,36 @@
 
         <h3>Reading the animation</h3>
         <ul>
-          <li><span class="legend-swatch legend-visited"></span> Cyan pulse — a cell the algorithm has examined.</li>
+          <li><span class="legend-swatch legend-visited"></span> Cyan pulse — a cell visited from the start side.</li>
+          <li><span class="legend-swatch legend-visited-b"></span> Violet pulse — a cell visited from the target side (Bidirectional Search only).</li>
           <li><span class="legend-swatch legend-path"></span> Amber glow — the final path once the target is reached.</li>
           <li><span class="legend-swatch legend-wall"></span> Dark cell — an obstacle; no algorithm can cross it.</li>
         </ul>
 
-        <h3>The algorithms</h3>
+        <h3>Uninformed search</h3>
         <p><strong>Breadth-First Search (BFS)</strong> explores the grid in expanding rings, one step at a time. On an unweighted grid like this one, it always finds the shortest path, but it checks many cells it doesn't strictly need to.</p>
         <p><strong>Depth-First Search (DFS)</strong> commits to a direction and follows it as far as possible before backtracking. It is fast to code and easy to reason about, but the path it finds is rarely the shortest one.</p>
+        <p><strong>Depth-Limited Search (DLS)</strong> is DFS with a hard ceiling on how deep it is allowed to go. Anything beyond the limit is treated as a dead end, even if a real path exists just past it.</p>
+        <p><strong>Iterative Deepening Search (IDS)</strong> runs DLS repeatedly with limits 0, 1, 2, ... until a path is found. It keeps DFS's low memory footprint while still guaranteeing the shortest path on an unweighted grid, at the cost of re-exploring shallow cells many times.</p>
+        <p><strong>Bidirectional Search</strong> grows two BFS waves at once — one from the start, one from the target — and stops the moment they meet in the middle. It typically explores far fewer cells than a single-direction BFS.</p>
+
+        <h3>Informed (heuristic) search</h3>
+        <p><strong>Greedy Best-First Search</strong> expands whichever cell looks closest to the target according to the heuristic alone, ignoring how far it has already traveled. It's fast but can be led astray by dead ends.</p>
+        <p><strong>A* Search</strong> is Dijkstra plus a heuristic: it estimates the remaining distance to the target (Manhattan distance here) and prioritizes cells that look promising, usually examining far fewer cells than uninformed search while still finding the shortest path.</p>
         <p><strong>Dijkstra's Algorithm</strong> always expands the closest unvisited cell first. On this grid, where every step costs the same, it behaves like BFS — but the same logic scales to grids with variable movement costs.</p>
-        <p><strong>A* Search</strong> is Dijkstra plus a heuristic: it estimates the remaining distance to the target (using Manhattan distance here) and prioritizes cells that look promising. It typically reaches the target while examining far fewer cells than the others.</p>
+        <p><strong>Hill Climbing</strong> always steps to whichever unvisited neighbor looks closest to the goal, with no backtracking. It's simple and memory-light, but it can walk into a dead end (a "local optimum") and get stuck even when a path exists — a classic limitation from local search theory.</p>
+        <p><strong>Beam Search</strong> keeps only the k most promising cells at each layer (k = 3 here) instead of exploring everything — a middle ground between greedy search and full breadth-first search.</p>
+
+        <h3>0/1 Knapsack (a different problem)</h3>
+        <p>Switching the <strong>Problem</strong> selector to <strong>0/1 Knapsack</strong> replaces the grid with a classic optimization problem: given items with a weight and a value, choose a subset that fits inside a weight capacity while maximizing total value.</p>
+        <p><strong>Dynamic Programming</strong> builds a table of the best achievable value for every (item, remaining capacity) pair, then backtracks through it to read off exactly which items were chosen. It always finds the optimal answer.</p>
+        <p><strong>Genetic Algorithm</strong> instead evolves a population of random item-selections generation by generation — combining, mutating, and keeping the fittest — converging toward a good (often optimal) answer without ever building the full table.</p>
+
+        <h3>Cartoon Mode</h3>
+        <p>Turning on <strong>Cartoon Mode</strong> adds a small animated explorer that physically walks across the grid as the algorithm visits each cell, then celebrates on arrival — a more playful way to watch the same search unfold.</p>
 
         <h3>Why this matters</h3>
-        <p>These are the same core ideas behind route planning in maps, NPC movement in games, and the informed-search techniques (Greedy Best-First, A*, Hill Climbing) covered in most introductory AI courses. Watching them run side by side on the same grid makes their trade-offs — speed, memory, and optimality — visible instead of abstract.</p>
+        <p>These are the same core ideas behind route planning in maps, NPC movement in games, and the search and optimization techniques covered in most introductory AI courses. Watching them run side by side makes their trade-offs — speed, memory, and optimality — visible instead of abstract.</p>
       </div>
     </div>
   </div>
